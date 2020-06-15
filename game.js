@@ -203,6 +203,7 @@ function loadGame() {
   document.getElementById('speedDownButton')
       .addEventListener('click', changeSpeed.bind(this, 2));
   document.getElementById('backButton').addEventListener('click', goBack);
+  document.getElementById('stepButton').addEventListener('click', update);
 
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
