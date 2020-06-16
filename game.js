@@ -31,6 +31,12 @@ const BLOCK = [
   [1, 1]
 ];
 
+const SHIP = [
+  [1, 1, 0],
+  [1, 0, 1],
+  [0, 1, 1]
+];
+
 const R_PENTOMINO = [
   [0, 1, 1],
   [1, 1, 0],
@@ -53,12 +59,67 @@ const FACES = [
 ];
 
 const SMTH = [
-  [0, 1, 1, 1, 1],
+  [0, 0, 1, 1, 0],
+  [0, 1, 0, 0, 1],
+  [0, 0, 1, 1, 0],
+  [0, 0, 0, 1, 0],
+  [0, 1, 1, 0, 1],
+  [0, 0, 0, 1, 0],
+  [0, 0, 1, 1, 0],
+  [0, 1, 0, 0, 1],
+  [0, 0, 1, 1, 0],
+];
+
+const SMTH_OTHER = [
+  [1, 1, 1, 1, 1],
   [1, 0, 1, 0, 1],
-  [1, 0, 0, 1, 1],
+  [1, 0, 0, 0, 1],
+  [1, 1, 0, 1, 0],
+  [1, 0, 0, 0, 1],
   [1, 0, 1, 0, 1],
   [1, 1, 1, 1, 1],
 ];
+const PERIOD = [
+[0,0,0,0,0,],
+[0,0,1,0,1,],
+[0,0,0,1,0,],
+[0,0,0,1,0,],
+[0,0,1,0,1],
+];
+
+const FACE = [
+  [0, 0, 1, 1, 1, 1, 1, 0, 0],
+  [0, 1, 1, 1, 1, 1, 1, 1, 0],
+  [1, 0, 0, 1, 1, 1, 0, 0, 1],
+  [0, 1, 1, 1, 1, 1, 1, 1, 0],
+  [0, 0, 1, 1, 1, 1, 1, 0, 0],
+  [0, 0, 0, 1, 1, 1, 0, 0, 0]
+];
+
+const CTHULHU = [
+  [0, 0, 1, 1, 1, 1, 1, 0, 0],
+  [0, 1, 1, 1, 1, 1, 1, 1, 0],
+  [1, 0, 0, 1, 1, 1, 0, 0, 1],
+  [0, 1, 1, 1, 1, 1, 1, 1, 0],
+  [0, 0, 1, 1, 1, 1, 1, 0, 0],
+  [0, 1, 1, 1, 1, 1, 1, 1, 0],
+  [0, 1, 0, 1, 0, 1, 0, 1, 0]
+];
+
+const PULSAR_SPAWNER = [
+  [1, 0, 0, 0, 1],
+  [1, 0, 1, 0, 1],
+  [1, 0, 0, 0, 1]
+];
+
+const PULSAR_SPAWNER2 = [
+  [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1]
+];
+
+const OSCILLATOR_SPAWNER = [
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+];
+
 
 function createArray2D(n, m) {
   let a = new Array(n);
@@ -137,6 +198,15 @@ class Universe {
     return this.universe[i][j];
   }
 
+  toggle(i, j) {
+    if (i < 0 || i >= this.n || j < 0 || j >= this.m)
+      return;
+
+    j += 1;
+    this.universe[i][j] ^= 1;
+  }
+
+
   evolve() {
     if (this.storage) {
       this.storage.push(copyArray2D(this.universe));
@@ -194,6 +264,14 @@ function goBack() {
   draw();
 }
 
+function canvasClicked(ev) {
+  const x = Math.floor(ev.offsetX / PIXELS_PER_CELL);
+  const y = Math.floor(ev.offsetY / PIXELS_PER_CELL);
+  universe.toggle(y, x);
+  draw();
+}
+
+
 function loadGame() {
   let playButton = document.getElementById('playButton');
   playButton.addEventListener('click', playPause.bind(this, playButton));
@@ -206,6 +284,7 @@ function loadGame() {
   document.getElementById('stepButton').addEventListener('click', update);
 
   canvas = document.getElementById('canvas');
+  canvas.addEventListener('click', canvasClicked);
   ctx = canvas.getContext('2d');
   cwidth = canvas.width;
   cheight = canvas.height;
@@ -213,12 +292,21 @@ function loadGame() {
   n = cheight / PIXELS_PER_CELL;
   m = cwidth / PIXELS_PER_CELL;
 
-  universe = new Universe(n, m, 10);
+  universe = new Universe(n, m, 50);
 
-  universe.setPattern(40, 40, SMTH);
+  // universe.setPattern(37, 16, SMTH_OTHER);
+
+  // universe.setPattern(39, 36, SHIP);
+
+  // universe.setPattern(37, 54, SMTH);
+
+  // universe.setPattern(30, 30, R_PENTOMINO);
+  // universe.setPattern(48, 48, CTHULHU);
+  // universe.setPattern(10, 10, PULSAR_SPAWNER);
+  // universe.setPattern(20, 20, PERIOD);
 
   draw();
-  playPause(playButton);
+  // playPause(playButton);
 }
 
 function draw() {
