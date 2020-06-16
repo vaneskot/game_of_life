@@ -52,7 +52,7 @@ class Game {
 
   update() {
     this.universe.nextGeneration();
-    this.draw();
+    this.draw(this.universe);
   }
 
   playPause() {
@@ -76,7 +76,7 @@ class Game {
 
   goBack() {
     this.universe.goBackIfPossible();
-    this.draw();
+    this.draw(this.universe);
   }
 }
 
@@ -146,7 +146,6 @@ class Universe {
     this.universe[i][j] ^= 1;
   }
 
-
   nextGeneration() {
     if (this.storage) {
       this.storage.push(copyArray2D(this.universe));
@@ -182,14 +181,6 @@ module.exports = Universe;
 
 var Universe = require('./game_of_life_universe.js');
 var Game = require('./game.js');
-
-var canvas;
-var ctx;
-var cwidth;
-var cheight;
-
-var universe;
-var game;
 
 const PIXELS_PER_CELL = 10;
 
@@ -300,15 +291,17 @@ const OSCILLATOR_SPAWNER = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
-function canvasClicked(ev) {
+function canvasClicked(universe, draw, ev) {
   const x = Math.floor(ev.offsetX / PIXELS_PER_CELL);
   const y = Math.floor(ev.offsetY / PIXELS_PER_CELL);
   universe.toggle(y, x);
-  draw();
+  draw(universe);
 }
 
-function draw() {
-  ctx.clearRect(0, 0, cwidth, cheight);
+function draw(canvas, universe) {
+  let ctx = canvas.getContext('2d');
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   for (let i = 0; i < universe.n; ++i) {
     for (let j = 0; j < universe.m; ++j) {
@@ -323,19 +316,23 @@ function draw() {
 }
 
 function loadGame() {
-  canvas = document.getElementById('canvas');
-  canvas.addEventListener('click', canvasClicked);
-  ctx = canvas.getContext('2d');
-  cwidth = canvas.width;
-  cheight = canvas.height;
+  let canvas = document.getElementById('canvas');
+  let drawWithCanvas = draw.bind(this, canvas);
 
-  const n = cheight / PIXELS_PER_CELL;
-  const m = cwidth / PIXELS_PER_CELL;
+  const n = canvas.height / PIXELS_PER_CELL;
+  const m = canvas.width / PIXELS_PER_CELL;
+  let universe = new Universe(n, m, 50);
 
-  universe = new Universe(n, m, 50);
-  game = new Game(universe, draw, 200);
+  universe.setPattern(28, 48, FACE);
+  universe.toggle(26, 51);
+  universe.toggle(26, 52);
+  universe.toggle(26, 53);
 
-  draw();
+  let game = new Game(universe, drawWithCanvas, 200);
+
+  canvas.addEventListener('click', canvasClicked.bind(this, universe, drawWithCanvas));
+
+  drawWithCanvas(universe);
 }
 
 window.addEventListener('load', loadGame);

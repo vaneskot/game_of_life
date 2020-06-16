@@ -20,7 +20,7 @@ class Game {
 
   update() {
     this.universe.nextGeneration();
-    this.draw();
+    this.draw(this.universe);
   }
 
   playPause() {
@@ -44,7 +44,7 @@ class Game {
 
   goBack() {
     this.universe.goBackIfPossible();
-    this.draw();
+    this.draw(this.universe);
   }
 }
 

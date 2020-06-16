@@ -61,7 +61,6 @@ class Universe {
     this.universe[i][j] ^= 1;
   }
 
-
   nextGeneration() {
     if (this.storage) {
       this.storage.push(copyArray2D(this.universe));
