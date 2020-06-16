@@ -2,10 +2,9 @@
   "name": "automata",
   "version": "0.0.1",
   "description": "Cellular automata implementations",
-  "main": "game.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:game_of_life": "browserify -o game_of_life_bundle.js game.js circular_buffer.js game_of_life_universe.js"
+    "build:game_of_life": "browserify -o game_of_life_bundle.js game.js load_game.js circular_buffer.js game_of_life_universe.js"
   },
   "repository": {
     "type": "git",
