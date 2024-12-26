@@ -116,14 +116,11 @@ class Universe {
   }
 
   setPattern(i, j, pattern) {
-    const pN = pattern.length;
-    const pM = pattern[0].length;
-
     // Account for the additional element.
     j += 1;
 
-    for (let a = 0; a < pN; ++a) {
-      for (let b = 0; b < pM; ++b) {
+    for (let a = 0; a < pattern.length; ++a) {
+      for (let b = 0; b < pattern[a].length; ++b) {
         this.universe[i + a][j + b] = pattern[a][b];
       }
     }
@@ -158,8 +155,8 @@ class Universe {
       const nextLine = i < this.n - 1 ? this.universe[i + 1] : this.emptyLine;
       for (let j = 1; j <= this.m; ++j) {
         const neighbours = prevLine[j - 1] + prevLine[j] + prevLine[j + 1]
-            + curLineCopy[j - 1] + curLineCopy[j + 1]
-            + nextLine[j - 1] + nextLine[j] + nextLine[j + 1];
+          + curLineCopy[j - 1] + curLineCopy[j + 1]
+          + nextLine[j - 1] + nextLine[j] + nextLine[j + 1];
         curLine[j] = (neighbours == 3 || (neighbours == 2 && curLine[j]));
       }
     }
@@ -251,11 +248,11 @@ const SMTH_OTHER = [
 ];
 
 const PERIOD = [
-[0,0,0,0,0,],
-[0,0,1,0,1,],
-[0,0,0,1,0,],
-[0,0,0,1,0,],
-[0,0,1,0,1],
+  [0, 0, 0, 0, 0,],
+  [0, 0, 1, 0, 1,],
+  [0, 0, 0, 1, 0,],
+  [0, 0, 0, 1, 0,],
+  [0, 0, 1, 0, 1],
 ];
 
 const FACE = [
@@ -307,7 +304,7 @@ function draw(canvas, universe) {
     for (let j = 0; j < universe.m; ++j) {
       if (universe.get(i, j)) {
         ctx.fillRect(j * PIXELS_PER_CELL, i * PIXELS_PER_CELL,
-                     PIXELS_PER_CELL, PIXELS_PER_CELL);
+          PIXELS_PER_CELL, PIXELS_PER_CELL);
       }
     }
   }
@@ -323,10 +320,17 @@ function loadGame() {
   const m = canvas.width / PIXELS_PER_CELL;
   let universe = new Universe(n, m, 50);
 
-  universe.setPattern(28, 48, FACE);
-  universe.toggle(26, 51);
-  universe.toggle(26, 52);
-  universe.toggle(26, 53);
+  //universe.setPattern(28, 48, FACE);
+  //universe.toggle(26, 51);
+  //universe.toggle(26, 52);
+  //universe.toggle(26, 53);
+  //universe.setPattern(28, 48, OSCILLATOR_SPAWNER);
+  //universe.setPattern(28, 48, CTHULHU);
+
+  let patterns = require('./patterns.json');
+  console.log(patterns);
+  universe.setPattern(20, 20, patterns["Gosper glider gun"].pattern);
+  //universe.setPattern(20, 20, patterns["Glider"].pattern);
 
   let game = new Game(universe, drawWithCanvas, 200);
 
@@ -335,6 +339,282 @@ function loadGame() {
   drawWithCanvas(universe);
 }
 
+function loadPattern(cells) {
+}
+
 window.addEventListener('load', loadGame);
 
-},{"./game.js":2,"./game_of_life_universe.js":3}]},{},[2,4,1,3]);
+},{"./game.js":2,"./game_of_life_universe.js":3,"./patterns.json":5}],5:[function(require,module,exports){
+module.exports={
+  "Glider": {
+    "name": "Glider",
+    "author": "Richard K. Guy",
+    "description": "The smallest, most common, and first discovered spaceship.\nwww.conwaylife.com/wiki/index.php?title=Glider",
+    "pattern": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ]
+  },
+  "Gosper glider gun": {
+    "name": "Gosper glider gun",
+    "author": "Bill Gosper",
+    "description": "The first known gun and the first known finite pattern with unbounded growth.\nwww.conwaylife.com/wiki/index.php?title=Gosper_glider_gun",
+    "pattern": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  }
+}
+},{}]},{},[2,4,1,3,5]);

@@ -31,14 +31,11 @@ class Universe {
   }
 
   setPattern(i, j, pattern) {
-    const pN = pattern.length;
-    const pM = pattern[0].length;
-
     // Account for the additional element.
     j += 1;
 
-    for (let a = 0; a < pN; ++a) {
-      for (let b = 0; b < pM; ++b) {
+    for (let a = 0; a < pattern.length; ++a) {
+      for (let b = 0; b < pattern[a].length; ++b) {
         this.universe[i + a][j + b] = pattern[a][b];
       }
     }
@@ -73,8 +70,8 @@ class Universe {
       const nextLine = i < this.n - 1 ? this.universe[i + 1] : this.emptyLine;
       for (let j = 1; j <= this.m; ++j) {
         const neighbours = prevLine[j - 1] + prevLine[j] + prevLine[j + 1]
-            + curLineCopy[j - 1] + curLineCopy[j + 1]
-            + nextLine[j - 1] + nextLine[j] + nextLine[j + 1];
+          + curLineCopy[j - 1] + curLineCopy[j + 1]
+          + nextLine[j - 1] + nextLine[j] + nextLine[j + 1];
         curLine[j] = (neighbours == 3 || (neighbours == 2 && curLine[j]));
       }
     }

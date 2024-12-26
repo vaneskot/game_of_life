@@ -4,7 +4,8 @@
   "description": "Cellular automata implementations",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:game_of_life": "browserify -o game_of_life_bundle.js game.js load_game.js circular_buffer.js game_of_life_universe.js"
+    "build:data": "node process_patterns.js",
+    "build:game_of_life": "npm run build:data && browserify -o game_of_life_bundle.js game.js load_game.js circular_buffer.js game_of_life_universe.js patterns.json"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/vaneskot/game_of_life/issues"
   },
-  "homepage": "https://github.com/vaneskot/game_of_life#readme"
+  "homepage": "https://github.com/vaneskot/game_of_life#readme",
+  "dependencies": {
+    "browserify": "^17.0.1"
+  }
 }
