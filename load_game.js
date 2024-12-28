@@ -142,28 +142,18 @@ function loadGame() {
 
   const n = canvas.height / PIXELS_PER_CELL;
   const m = canvas.width / PIXELS_PER_CELL;
-  let universe = new Universe(n, m, 50);
+  let universe = Universe.createInstance(n, m, 50);
 
-  //universe.setPattern(28, 48, FACE);
-  //universe.toggle(26, 51);
-  //universe.toggle(26, 52);
-  //universe.toggle(26, 53);
-  //universe.setPattern(28, 48, OSCILLATOR_SPAWNER);
-  //universe.setPattern(28, 48, CTHULHU);
+  universe.setPattern(28, 48, FACE);
+  universe.toggle(26, 51);
+  universe.toggle(26, 52);
+  universe.toggle(26, 53);
 
-  let patterns = require('./patterns.json');
-  console.log(patterns);
-  universe.setPattern(20, 20, patterns["Gosper glider gun"].pattern);
-  //universe.setPattern(20, 20, patterns["Glider"].pattern);
-
-  let game = new Game(universe, drawWithCanvas, 200);
+  Game.createInstance(Universe, drawWithCanvas, 200);
 
   canvas.addEventListener('click', canvasClicked.bind(this, universe, drawWithCanvas));
 
   drawWithCanvas(universe);
-}
-
-function loadPattern(cells) {
 }
 
 window.addEventListener('load', loadGame);

@@ -23,11 +23,8 @@ class Universe {
     this.n = n;
     this.m = m;
     this.storage = keepLastN && keepLastN > 0 ? new CircularBuffer(keepLastN) : undefined;
-    // There is an element in front of every row and after every row
-    // to simplify computation.
-    this.universe = createArray2D(n, m + 2);
     this.emptyLine = new Array(m + 2).fill(0);
-    this.generation = 0;
+    this.reset();
   }
 
   setPattern(i, j, pattern) {
@@ -84,6 +81,37 @@ class Universe {
     this.universe = this.storage.pop();
     this.generation--;
   }
+
+  reset() {
+    // There is an element in front of every row and after every row
+    // to simplify computation.
+    this.universe = createArray2D(this.n, this.m + 2);
+    this.generation = 0;
+  }
+
+  setCenteredPattern(pattern) {
+    //const rows = pattern.length;
+    //let columns = 0;
+    //for (const row in pattern) {
+    //  columns = Math.max(columns, pattern[row].length);
+    //}
+    //
+    //const i = Math.round(this.n / 2 - rows / 2);
+    //const j = Math.round(this.m / 2 - columns / 2);
+    const i = Math.round(this.n / 4);
+    const j = Math.round(this.m / 4);
+    this.setPattern(i, j, pattern);
+  }
 }
 
-module.exports = Universe;
+let instance = null;
+
+module.exports = {
+  createInstance: function(n, m, keepLastN) {
+    instance = new Universe(n, m, keepLastN);
+    return instance;
+  },
+  getInstance: function() {
+    return instance;
+  }
+};

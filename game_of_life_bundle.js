@@ -36,6 +36,7 @@ class Game {
   constructor(universe, draw, interval) {
     this.universe = universe;
     this.draw = draw;
+    this.originalInterval = interval;
     this.interval = interval;
 
     let playButton = document.getElementById('playButton');
@@ -43,16 +44,20 @@ class Game {
     this.playButton = playButton;
 
     document.getElementById('speedUpButton')
-        .addEventListener('click', this.changeSpeed.bind(this, 0.5));
+      .addEventListener('click', this.changeSpeed.bind(this, 0.5));
     document.getElementById('speedDownButton')
-        .addEventListener('click', this.changeSpeed.bind(this, 2));
+      .addEventListener('click', this.changeSpeed.bind(this, 2));
     document.getElementById('backButton').addEventListener('click', this.goBack.bind(this));
     document.getElementById('stepButton').addEventListener('click', this.update.bind(this));
   }
 
+  redraw() {
+    this.draw(this.universe.getInstance());
+  }
+
   update() {
-    this.universe.nextGeneration();
-    this.draw(this.universe);
+    this.universe.getInstance().nextGeneration();
+    this.redraw();
   }
 
   playPause() {
@@ -75,12 +80,31 @@ class Game {
   }
 
   goBack() {
-    this.universe.goBackIfPossible();
-    this.draw(this.universe);
+    this.universe.getInstance().goBackIfPossible();
+    this.redraw();
+  }
+
+  reset() {
+    this.universe.getInstance().reset();
+    clearInterval(this.intervalHandle);
+    this.intervalHandle = undefined;
+    this.playButton.innerHTML = 'Play';
+    this.interval = this.originalInterval;
+    this.redraw();
   }
 }
 
-module.exports = Game;
+let instance = null;
+
+module.exports = {
+  createInstance: function(universe, draw, interval) {
+    instance = new Game(universe, draw, interval);
+    return instance;
+  },
+  getInstance: function() {
+    return instance;
+  }
+};
 
 },{}],3:[function(require,module,exports){
 'use strict'
@@ -108,11 +132,8 @@ class Universe {
     this.n = n;
     this.m = m;
     this.storage = keepLastN && keepLastN > 0 ? new CircularBuffer(keepLastN) : undefined;
-    // There is an element in front of every row and after every row
-    // to simplify computation.
-    this.universe = createArray2D(n, m + 2);
     this.emptyLine = new Array(m + 2).fill(0);
-    this.generation = 0;
+    this.reset();
   }
 
   setPattern(i, j, pattern) {
@@ -169,9 +190,40 @@ class Universe {
     this.universe = this.storage.pop();
     this.generation--;
   }
+
+  reset() {
+    // There is an element in front of every row and after every row
+    // to simplify computation.
+    this.universe = createArray2D(this.n, this.m + 2);
+    this.generation = 0;
+  }
+
+  setCenteredPattern(pattern) {
+    //const rows = pattern.length;
+    //let columns = 0;
+    //for (const row in pattern) {
+    //  columns = Math.max(columns, pattern[row].length);
+    //}
+    //
+    //const i = Math.round(this.n / 2 - rows / 2);
+    //const j = Math.round(this.m / 2 - columns / 2);
+    const i = Math.round(this.n / 4);
+    const j = Math.round(this.m / 4);
+    this.setPattern(i, j, pattern);
+  }
 }
 
-module.exports = Universe;
+let instance = null;
+
+module.exports = {
+  createInstance: function(n, m, keepLastN) {
+    instance = new Universe(n, m, keepLastN);
+    return instance;
+  },
+  getInstance: function() {
+    return instance;
+  }
+};
 
 },{"./circular_buffer.js":1}],4:[function(require,module,exports){
 'use strict'
@@ -318,33 +370,23 @@ function loadGame() {
 
   const n = canvas.height / PIXELS_PER_CELL;
   const m = canvas.width / PIXELS_PER_CELL;
-  let universe = new Universe(n, m, 50);
+  let universe = Universe.createInstance(n, m, 50);
 
-  //universe.setPattern(28, 48, FACE);
-  //universe.toggle(26, 51);
-  //universe.toggle(26, 52);
-  //universe.toggle(26, 53);
-  //universe.setPattern(28, 48, OSCILLATOR_SPAWNER);
-  //universe.setPattern(28, 48, CTHULHU);
+  universe.setPattern(28, 48, FACE);
+  universe.toggle(26, 51);
+  universe.toggle(26, 52);
+  universe.toggle(26, 53);
 
-  let patterns = require('./patterns.json');
-  console.log(patterns);
-  universe.setPattern(20, 20, patterns["Gosper glider gun"].pattern);
-  //universe.setPattern(20, 20, patterns["Glider"].pattern);
-
-  let game = new Game(universe, drawWithCanvas, 200);
+  Game.createInstance(Universe, drawWithCanvas, 200);
 
   canvas.addEventListener('click', canvasClicked.bind(this, universe, drawWithCanvas));
 
   drawWithCanvas(universe);
 }
 
-function loadPattern(cells) {
-}
-
 window.addEventListener('load', loadGame);
 
-},{"./game.js":2,"./game_of_life_universe.js":3,"./patterns.json":5}],5:[function(require,module,exports){
+},{"./game.js":2,"./game_of_life_universe.js":3}],5:[function(require,module,exports){
 module.exports={
   "Glider": {
     "name": "Glider",
@@ -617,4 +659,118 @@ module.exports={
     ]
   }
 }
-},{}]},{},[2,4,1,3,5]);
+},{}],6:[function(require,module,exports){
+const patternData = require('./patterns.json')
+var Universe = require('./game_of_life_universe.js');
+var Game = require('./game.js');
+
+const patternList = document.getElementById("pattern-list");
+const preview = document.getElementById("preview");
+const searchInput = document.getElementById("search");
+let currentPattern = null;
+
+function renderPatternList() {
+  patternList.innerHTML = ""; // Clear the list
+
+  for (const filename in patternData) {
+    const pattern = patternData[filename];
+    const listItem = document.createElement("li");
+    listItem.textContent = pattern.name;
+    listItem.dataset.filename = filename; // Store filename for later use
+
+    listItem.addEventListener("click", () => {
+      renderPreview(pattern);
+    });
+
+    patternList.appendChild(listItem);
+  }
+}
+
+function renderPreview(pattern) {
+  preview.innerHTML = "";
+  let max_length = 0;
+  for (const row in pattern.pattern) {
+    max_length = Math.max(max_length, pattern.pattern[row].length);
+  }
+
+  const patternGrid = document.createElement("div");
+  patternGrid.style.display = "grid";
+  patternGrid.style.gridTemplateColumns = `repeat(${max_length}, 15px)`;
+  patternGrid.style.gridTemplateRows = `repeat(${pattern.pattern.length}, 15px)`;
+
+  for (let row = 0; row < pattern.pattern.length; row++) {
+    for (let col = 0; col < pattern.pattern[row].length; col++) {
+      const cell = document.createElement("div");
+      cell.style.width = "15px";
+      cell.style.height = "15px";
+      cell.style.backgroundColor = pattern.pattern[row][col] === 1 ? "black" : "white";
+      cell.style.border = "1px solid #ccc";
+      patternGrid.appendChild(cell);
+    }
+    for (let col = pattern.pattern[row].length; col < max_length; col++) {
+      const cell = document.createElement("div");
+      cell.style.width = "15px";
+      cell.style.height = "15px";
+      cell.style.backgroundColor = "white";
+      cell.style.border = "1px solid #ccc";
+      patternGrid.appendChild(cell);
+    }
+  }
+
+  preview.appendChild(patternGrid);
+  currentPattern = pattern;
+}
+
+searchInput.addEventListener("input", () => {
+  const searchTerm = searchInput.value.toLowerCase();
+  const filteredPatterns = Object.entries(patternData).filter(([filename, pattern]) => {
+    return pattern.name.toLowerCase().includes(searchTerm);
+  });
+
+  patternList.innerHTML = "";
+  for (const [filename, pattern] of filteredPatterns) {
+    const listItem = document.createElement("li");
+    listItem.textContent = pattern.name;
+    listItem.dataset.filename = filename;
+
+    listItem.addEventListener("click", () => {
+      renderPreview(pattern);
+    });
+
+    patternList.appendChild(listItem);
+  }
+});
+
+renderPatternList();
+
+// Modal Logic
+const modal = document.getElementById("patternModal");
+const openModalBtn = document.getElementById("openModalBtn");
+const closeModalBtn = document.getElementsByClassName("close")[0];
+const confirmBtn = document.getElementById("confirmButton");
+
+openModalBtn.onclick = function() {
+  modal.style.display = "block";
+}
+
+closeModalBtn.onclick = function() {
+  modal.style.display = "none";
+}
+
+confirmBtn.onclick = function() {
+  if (currentPattern) {
+    Game.getInstance().reset();
+    Universe.getInstance().setCenteredPattern(currentPattern.pattern);
+    modal.style.display = "none";
+    Game.getInstance().redraw();
+  }
+}
+
+// Close the modal when clicking outside of it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+},{"./game.js":2,"./game_of_life_universe.js":3,"./patterns.json":5}]},{},[2,4,1,3,6,5]);

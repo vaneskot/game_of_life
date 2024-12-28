@@ -1,9 +1,87 @@
+<head>
+  <title>Game of Life</title>
+  <style>
+    /* Basic Modal Styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 600px; /* Adjust as needed */
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Styles for the Pattern List (inside the modal) */
+    #pattern-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    #pattern-list li {
+      cursor: pointer;
+      padding: 5px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #pattern-list li:hover {
+      background-color: #eee;
+    }
+
+    /* Styles for the Preview */
+    #preview {
+      width: 200px;
+      height: 200px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
 <body>
 <button type='button' id='playButton'>Play</button>
 <button type='button' id='speedUpButton'>Speed +++</button>
 <button type='button' id='speedDownButton'>Speed ---</button>
 <button type='button' id='backButton'>Back</button>
 <button type='button' id='stepButton'>Step</button>
+<button id="openModalBtn">Choose Pattern</button>
+
+  <div id="patternModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Select a Pattern</h2>
+
+      <input type="text" id="search" placeholder="Search patterns...">
+      <button id="confirmButton">Confirm</button>
+
+      <ul id="pattern-list"></ul>
+
+      <div id="preview"></div>
+    </div>
+  </div>
 <label>Generation: </label><label id='generationLabel'>0</label>
 <br>
 <canvas id='canvas' width='1000' height='1000'></canvas>
