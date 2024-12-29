@@ -17,6 +17,8 @@ function process(fileContent) {
       const comment = line.substring(1).trim(); // Remove the "!" and trim whitespace
       if (comment.startsWith('Name:')) {
         result.name = comment.substring(5).trim(); // Extract name after "Name:"
+      } else if (result.name == '') { // Use the first line for a name if there's nothing else.
+        result.name = comment.trim();
       } else if (comment.startsWith('Author:')) {
         result.author = comment.substring(7).trim(); // Extract author after "Author:"
       } else {
